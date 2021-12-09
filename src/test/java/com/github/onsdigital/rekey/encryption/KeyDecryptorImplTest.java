@@ -38,7 +38,6 @@ public class KeyDecryptorImplTest {
         this.decryptor = new KeyDecryptorImpl(filesHelper, keyfileFilter);
 
         this.keyringDir = folder.newFolder("keyring").toPath();
-        this.collectionKeyFile = folder.newFile("keyring/abc123.txt").toPath();
     }
 
     @After
@@ -59,13 +58,13 @@ public class KeyDecryptorImplTest {
 
         // Use the KeyEncryptor to write a key encrypted to the keyring dir.
         KeyEncryptor encryptor = new KeyEncryptorImpl();
-        encryptor.encryptToFile(input, collectionKeyFile, key, initVector);
+        encryptor.encryptToFile(input, keyringDir, key, initVector);
 
         // Decrypt using the KeyDecryptor
         List<CollectionKey> keys = decryptor.decreptKeys(keyringDir, key, initVector);
 
         assertThat(keys.size(), equalTo(1));
-        assertThat(keys.get(0), equalTo(collectionKey));
+        assertThat(keys.get(0).getKey(), equalTo(collectionKey));
     }
 
     private IvParameterSpec getIV() {

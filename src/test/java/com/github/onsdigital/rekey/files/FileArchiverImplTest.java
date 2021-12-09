@@ -28,18 +28,16 @@ public class FileArchiverImplTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-    @Mock
-    private FilesHelper filesHelper;
-
     private FileArchiver archiver;
-    private Path keyringDir;
+    private Path keyringDir, keyringBackupDir;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
         this.keyringDir = folder.newFolder("keyring").toPath();
-        this.archiver = new FileArchiverImpl(filesHelper);
+        this.keyringBackupDir = folder.newFolder("keyring-backup").toPath();
+        this.archiver = new FileArchiverImpl();
     }
 
     @After
@@ -51,23 +49,25 @@ public class FileArchiverImplTest {
     public void testCreateTarGz() throws Exception {
         Path output = keyringDir.resolve("keyring-backup.tar.gz");
 
-        Path key1 = folder.newFile("keyring/collection1.txt").toPath();
-        Path key2 = folder.newFile("keyring/collection2.txt").toPath();
+        Path key1 = folder.newFile("keyring-backup/collection1.txt").toPath();
+        Path key2 = folder.newFile("keyring-backup/collection2.txt").toPath();
 
-        when(filesHelper.listFiles(any(), any()))
-                .thenReturn(new ArrayList<Path>() {{
-                    add(key1);
-                    add(key2);
-                }});
-
-        archiver.createTarGz(keyringDir, output, (p) -> Files.isRegularFile(p));
+        archiver.createTarGz(keyringBackupDir, output, (p) -> Files.isRegularFile(p));
 
         assertTrue(Files.exists(output));
 
         List<String> entries = getTarEntries(output);
         assertThat(entries.size(), equalTo(2));
-        assertTrue(entries.contains(key1.toFile().getName()));
-        assertTrue(entries.contains(key2.toFile().getName()));
+
+        // The output tar.gz should contain the following structure:
+        // keyring-backup
+        //    /collection1.txt
+        //    /collection2.txt
+        String key1ExpectedEntry = folder.getRoot().toPath().relativize(key1).toString();
+        assertTrue(entries.contains(key1ExpectedEntry));
+
+        String key2ExpectedEntry = folder.getRoot().toPath().relativize(key2).toString();
+        assertTrue(entries.contains(key2ExpectedEntry));
     }
 
     private List<String> getTarEntries(Path tarFile) throws Exception {

@@ -50,7 +50,7 @@ public class KeyEncryptorImplTest {
         }};
 
         KeyEncryptor encryptor = new KeyEncryptorImpl();
-        encryptor.encryptToFile(input, keyFile, key, initV);
+        encryptor.encryptToFile(input, keyringDir, key, initV);
 
         assertTrue(Files.exists(keyFile));
 

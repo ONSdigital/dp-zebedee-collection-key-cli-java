@@ -95,13 +95,14 @@ public class RekeyComandTest {
 
         doThrow(RekeyException.class)
                 .when(archiver)
-                .createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), keyFileFilter);
+                .createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), keyFileFilter);
 
         assertThrows(RekeyException.class, () -> cmd.call());
 
         verify(parser, times(1)).parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir");
-        verify(archiver, times(1)).createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), keyFileFilter);
-        verifyZeroInteractions(filesHelper, encryptor, decryptor);
+        verify(filesHelper, times(1)).move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
+        verify(archiver, times(1)).createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), keyFileFilter);
+        verifyZeroInteractions(encryptor, decryptor);
     }
 
     @Test
@@ -116,10 +117,8 @@ public class RekeyComandTest {
         assertThrows(RekeyException.class, () -> cmd.call());
 
         verify(parser, times(1)).parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir");
-        verify(archiver, times(1)).createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
-
-        verifyZeroInteractions(encryptor, decryptor);
+        verifyZeroInteractions(archiver, encryptor, decryptor);
     }
 
     @Test
@@ -134,7 +133,7 @@ public class RekeyComandTest {
         assertThrows(RekeyException.class, () -> cmd.call());
 
         verify(parser, times(1)).parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir");
-        verify(archiver, times(1)).createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), keyFileFilter);
+        verify(archiver, times(1)).createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
         verify(filesHelper, times(1)).createDir(cfg.getKeyringDir());
 
@@ -153,8 +152,8 @@ public class RekeyComandTest {
         assertThrows(RekeyException.class, () -> cmd.call());
 
         verify(parser, times(1)).parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir");
-        verify(archiver, times(1)).createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
+        verify(archiver, times(1)).createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).createDir(cfg.getKeyringDir());
         verify(decryptor, times(1)).decreptKeys(cfg.getKeyringBackupDir(), cfg.getKey(), cfg.getIv());
 
@@ -179,8 +178,8 @@ public class RekeyComandTest {
         assertThrows(RekeyException.class, () -> cmd.call());
 
         verify(parser, times(1)).parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir");
-        verify(archiver, times(1)).createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
+        verify(archiver, times(1)).createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).createDir(cfg.getKeyringDir());
         verify(decryptor, times(1)).decreptKeys(cfg.getKeyringBackupDir(), cfg.getKey(), cfg.getIv());
         verify(encryptor, times(1)).encryptToFile(keys, cfg.getKeyringDir(), cfg.getNewKey(), cfg.getNewIV());
@@ -204,8 +203,8 @@ public class RekeyComandTest {
         assertThrows(RekeyException.class, () -> cmd.call());
 
         verify(parser, times(1)).parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir");
-        verify(archiver, times(1)).createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
+        verify(archiver, times(1)).createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).createDir(cfg.getKeyringDir());
         verify(decryptor, times(1)).decreptKeys(cfg.getKeyringBackupDir(), cfg.getKey(), cfg.getIv());
         verify(encryptor, times(1)).encryptToFile(keys, cfg.getKeyringDir(), cfg.getNewKey(), cfg.getNewIV());
@@ -227,7 +226,7 @@ public class RekeyComandTest {
 
         assertThat(exitCode, equalTo(0));
         verify(parser, times(1)).parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir");
-        verify(archiver, times(1)).createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), keyFileFilter);
+        verify(archiver, times(1)).createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), keyFileFilter);
         verify(filesHelper, times(1)).move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
         verify(filesHelper, times(1)).createDir(cfg.getKeyringDir());
         verify(decryptor, times(1)).decreptKeys(cfg.getKeyringBackupDir(), cfg.getKey(), cfg.getIv());

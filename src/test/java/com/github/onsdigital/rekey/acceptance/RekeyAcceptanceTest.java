@@ -71,7 +71,7 @@ public class RekeyAcceptanceTest {
 
         ConfigParser cfgParse = new ConfigParserImpl();
         FilesHelper filesHelper = new FilesHelperImpl();
-        FileArchiver archiver = new FileArchiverImpl(filesHelper);
+        FileArchiver archiver = new FileArchiverImpl();
         Predicate<Path> keyFilesFilter = (p) -> Files.isRegularFile(p);
         KeyDecryptor decryptor = new KeyDecryptorImpl(filesHelper, keyFilesFilter);
         KeyEncryptor encryptor = new KeyEncryptorImpl();
@@ -107,7 +107,7 @@ public class RekeyAcceptanceTest {
      */
     @Test
     public void testRekeyCommand() throws Exception {
-        // Encrypt a plain text message with a Secret Key and assign the encrypted bytes/cipher to a var for later.
+        // Encrypt a plain text message with a Secret Key and assign the encrypted bytes to a var for later.
         byte[] cipherText = encryptBytes(CLEAR_TEXT.getBytes(StandardCharsets.UTF_8), collectionKey, collectionIV);
 
         // Encrypt the key used above with another Secret Key (Key 1) & write the output to a key file in the keyring
@@ -116,7 +116,7 @@ public class RekeyAcceptanceTest {
 
         // Run the rekey command.
         // This will decrypt each key file in the keyring dir using Key 1, re-encrypt the content with the new key
-        // (Key 2) and write the encyrpted bytes to a key file in the keyring dir replaceing the original src key file.
+        // (Key 2) and write the encyrpted bytes to a key file in the keyring dir replacing the original src key file.
         rekey.call();
 
         // Decrypt the key file using the new key (key2).

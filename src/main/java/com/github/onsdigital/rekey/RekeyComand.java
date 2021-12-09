@@ -99,11 +99,11 @@ public class RekeyComand implements Callable<Integer> {
     }
 
     private void createBackup(Config cfg, Predicate<Path> filter) throws RekeyException {
-        // TAR up the existing keyring dir
-        archiver.createTarGz(cfg.getKeyringDir(), cfg.getKeyringBackupTar(), filter);
-
         // Move the current keyring dir to a backup dir.
         filesHelper.move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
+
+        // TAR up the back up dir so we can rollback the change is necessary
+        archiver.createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), filter);
 
         // Create a new empty keyring dir to write the re-encrypted keys to.
         filesHelper.createDir(cfg.getKeyringDir());
@@ -112,7 +112,7 @@ public class RekeyComand implements Callable<Integer> {
     public static void main(String[] args) {
         FilesHelper filesHelper = new FilesHelperImpl();
         Predicate<Path> keyFileFilter = (p) -> isRegularFile(p) && "txt".equals(getExtension(p.toFile().getName()));
-        FileArchiver archiver = new FileArchiverImpl(filesHelper);
+        FileArchiver archiver = new FileArchiverImpl();
 
         ConfigParser parser = new ConfigParserImpl();
 
