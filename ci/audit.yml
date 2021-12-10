@@ -1,0 +1,13 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: onsdigital/dp-concourse-tools-java
+
+inputs:
+  - name: dp-zebedee-collection-key-cli-java
+
+run:
+  path: dp-zebedee-collection-key-cli-java/ci/scripts/audit.sh

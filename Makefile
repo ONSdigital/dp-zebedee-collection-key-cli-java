@@ -13,7 +13,15 @@ NEW_IV=<new_init_vector_as_base64_encoded_string>
 ZEBEDEE_ROOT=<path_to_zebedee_root_dir>
 
 .PHONY: all
-all: rekey build
+all: build test audit rekey
+
+.PHONY: test
+test:
+	mvn clean test -Dossindex.skip
+
+.PHONY: audit
+audit:
+	mvn ossindex:audit
 
 .PHONY: build
 build:
