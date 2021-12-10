@@ -3,6 +3,8 @@ package com.github.onsdigital.rekey.encryption;
 import com.github.onsdigital.rekey.RekeyException;
 import com.github.onsdigital.rekey.files.FilesHelper;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -24,6 +26,8 @@ import static org.apache.commons.io.FilenameUtils.removeExtension;
  */
 public class KeyDecryptorImpl implements KeyDecryptor {
 
+    private static final Logger LOG = LogManager.getLogger(KeyDecryptorImpl.class);
+
     static final String CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
     static final String ENCRYPTION_ALGORITHM = "AES";
     static final String TXT_EXT = "txt";
@@ -44,14 +48,18 @@ public class KeyDecryptorImpl implements KeyDecryptor {
 
     @Override
     public List<CollectionKey> decreptKeys(Path keyringDir, SecretKey key, IvParameterSpec iv) throws RekeyException {
-        List<CollectionKey> keys = new ArrayList<>();
+        List<CollectionKey> results = new ArrayList<>();
 
-        for (Path p : filesHelper.listFiles(keyringDir, keyFileFilter)) {
+        List<Path> keyFiles = filesHelper.listFiles(keyringDir, keyFileFilter);
+        LOG.info("decrypting existing collection keys (total: {})", keyFiles.size());
+
+        for (Path p : keyFiles) {
             SecretKey k = decryptKey(p, key, iv);
-            keys.add(new CollectionKey(k, removeExtension(p.getFileName().toString())));
+            results.add(new CollectionKey(k, removeExtension(p.getFileName().toString())));
         }
 
-        return keys;
+        LOG.info("successfully decrypted existing collection keys (count: {})", results.size());
+        return results;
     }
 
     private SecretKey decryptKey(Path keyFile, SecretKey key, IvParameterSpec iv) throws RekeyException {

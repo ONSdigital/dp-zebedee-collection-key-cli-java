@@ -23,7 +23,11 @@ public class CollectionKey {
         return this.collectionID;
     }
 
-    public Path getFilename(Path keyringDir) {
+    public Path getKeyPath(Path keyringDir) {
         return keyringDir.resolve(format("{0}.txt", collectionID));
+    }
+
+    public String getKeyFileName() {
+        return format("{0}.txt", collectionID);
     }
 }

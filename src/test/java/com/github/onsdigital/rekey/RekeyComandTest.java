@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.github.onsdigital.rekey.RekeyComand.VERIFICATION_ERR_FMT;
+import static java.text.MessageFormat.format;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -212,6 +214,36 @@ public class RekeyComandTest {
     }
 
     @Test
+    public void validateCompleteError_shouldThrowEx() throws Exception {
+        when(parser.parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir"))
+                .thenReturn(cfg);
+
+        List<CollectionKey> keys = new ArrayList<CollectionKey>() {{
+            add(new CollectionKey(collectionKey, "abc123"));
+        }};
+
+        when(decryptor.decreptKeys(cfg.getKeyringBackupDir(), cfg.getKey(), cfg.getIv()))
+                .thenReturn(keys);
+
+        when(filesHelper.exists(keyringDir.resolve("abc123.txt")))
+                .thenReturn(false);
+
+        RekeyException ex = assertThrows(RekeyException.class, () -> cmd.call());
+
+
+        String expected = format(VERIFICATION_ERR_FMT, "[abc123.txt]", cfg.getKeyringBackupTar());
+        assertThat(ex.getMessage(), equalTo(expected));
+
+        verify(parser, times(1)).parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir");
+        verify(archiver, times(1)).createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), keyFileFilter);
+        verify(filesHelper, times(1)).move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
+        verify(filesHelper, times(1)).createDir(cfg.getKeyringDir());
+        verify(decryptor, times(1)).decreptKeys(cfg.getKeyringBackupDir(), cfg.getKey(), cfg.getIv());
+        verify(encryptor, times(1)).encryptToFile(keys, cfg.getKeyringDir(), cfg.getNewKey(), cfg.getNewIV());
+        verify(filesHelper, times(1)).deleteDir(cfg.getKeyringBackupDir());
+    }
+
+    @Test
     public void testSuccess() throws Exception {
         when(parser.parseConfig("key", "iv", "newKey", "newIv", "zebedeeDir"))
                 .thenReturn(cfg);
@@ -219,8 +251,12 @@ public class RekeyComandTest {
         List<CollectionKey> keys = new ArrayList<CollectionKey>() {{
             add(new CollectionKey(collectionKey, "abc123"));
         }};
+
         when(decryptor.decreptKeys(cfg.getKeyringBackupDir(), cfg.getKey(), cfg.getIv()))
                 .thenReturn(keys);
+
+        when(filesHelper.exists(keyringDir.resolve("abc123.txt")))
+                .thenReturn(true);
 
         int exitCode = cmd.call();
 

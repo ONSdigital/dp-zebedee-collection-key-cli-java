@@ -50,4 +50,9 @@ public class FilesHelperImpl implements FilesHelper {
             throw new RekeyException("error listeing files", ex);
         }
     }
+
+    @Override
+    public boolean exists(Path p) {
+        return Files.exists(p);
+    }
 }

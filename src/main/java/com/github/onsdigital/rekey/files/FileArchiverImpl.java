@@ -4,6 +4,8 @@ import com.github.onsdigital.rekey.RekeyException;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -20,6 +22,8 @@ import static java.text.MessageFormat.format;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
 public class FileArchiverImpl implements FileArchiver {
+
+    private static final Logger LOG = LogManager.getLogger(FileArchiverImpl.class);
 
     @Override
     public void createTarGz(Path src, Path dest, Predicate<Path> filter) throws RekeyException {
@@ -46,7 +50,7 @@ public class FileArchiverImpl implements FileArchiver {
                     }
 
                     String filename = getTarEntryName(backupDir, p);
-                    System.out.println(format("adding {0} to backup tar", filename));
+                    LOG.info("tar entry: {}", p.toFile().getName());
 
                     TarArchiveEntry tarEntry = new TarArchiveEntry(p.toFile(), filename);
                     tarOut.putArchiveEntry(tarEntry);

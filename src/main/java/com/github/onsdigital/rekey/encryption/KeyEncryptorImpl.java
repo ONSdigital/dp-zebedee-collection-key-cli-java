@@ -1,6 +1,8 @@
 package com.github.onsdigital.rekey.encryption;
 
 import com.github.onsdigital.rekey.RekeyException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -14,6 +16,8 @@ import static java.text.MessageFormat.format;
 
 public class KeyEncryptorImpl implements KeyEncryptor {
 
+    private static final Logger LOG = LogManager.getLogger(KeyEncryptorImpl.class);
+
     static final String CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
     static final String ENCRYPTION_ALGORITHM = "AES";
 
@@ -22,9 +26,12 @@ public class KeyEncryptorImpl implements KeyEncryptor {
                               IvParameterSpec encryptionIV)
             throws RekeyException {
 
+        LOG.info("encrypting collection keys with new secret key");
         for (CollectionKey key : toEncrypt) {
-            encryptToFile(key.getFilename(dest), key.getKey(), encryptionKey, encryptionIV);
+            encryptToFile(key.getKeyPath(dest), key.getKey(), encryptionKey, encryptionIV);
         }
+
+        LOG.info("re-encryp collection keys completed successfully, total: {}", toEncrypt.size());
     }
 
     private void encryptToFile(Path dest, SecretKey toEncrypt, SecretKey encryptionKey, IvParameterSpec encryptionIV)
@@ -36,7 +43,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
             cos.write(toEncrypt.getEncoded());
             cos.flush();
         } catch (Exception ex) {
-            throw new RekeyException(format("error reencryption collection key: {0}", dest.toString()), ex);
+            throw new RekeyException(format("error re-encryption collection key: {0}", dest.toString()), ex);
         }
     }
 

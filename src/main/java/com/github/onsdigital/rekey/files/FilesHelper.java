@@ -46,4 +46,13 @@ public interface FilesHelper {
      * @throws RekeyException error listing the files.
      */
     List<Path> listFiles(Path src, Predicate<Path> filter) throws RekeyException;
+
+    /**
+     * Check if the specified file exists.
+     *
+     * @param p the file to check.
+     * @return true if the file exists, false otherwise.
+     * @throws RekeyException error checking file.
+     */
+    boolean exists(Path p);
 }

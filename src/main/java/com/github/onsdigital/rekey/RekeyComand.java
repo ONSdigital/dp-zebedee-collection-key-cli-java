@@ -12,6 +12,8 @@ import com.github.onsdigital.rekey.files.FileArchiver;
 import com.github.onsdigital.rekey.files.FileArchiverImpl;
 import com.github.onsdigital.rekey.files.FilesHelper;
 import com.github.onsdigital.rekey.files.FilesHelperImpl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -21,31 +23,42 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.nio.file.Files.isRegularFile;
+import static java.text.MessageFormat.format;
 import static org.apache.commons.compress.utils.FileNameUtils.getExtension;
+import static org.apache.commons.lang3.StringUtils.joinWith;
 
 @Command(name = "rekey", version = "Rekey v1.0.0", mixinStandardHelpOptions = true,
         description = "Re-encrypt all existing collection keys with a new secret key.")
 public class RekeyComand implements Callable<Integer> {
 
-    @Option(names = {"--key"}, required = true, paramLabel = " <current-key> ",
+    private static Logger LOG = LogManager.getLogger(RekeyComand.class);
+
+    static final String VERIFICATION_ERR_FMT = "rekey verification error, expected collection keys " +
+            "were missing: {0} " +
+            "\n\nTo rollback these changes:" +
+            "\n\t1) Untar the backup keying tar.gz: {1}" +
+            "\n\t2) Rename the backup dir to \"keyring\"\n";
+
+    @Option(names = {"-k"}, required = true, paramLabel = "<current-key>",
             description = "The current Secret Key as a Base 64 encoded string.")
     private String key;
 
-    @Option(names = {"--iv"}, required = true, paramLabel = "<current-init-vector>",
+    @Option(names = {"-i"}, required = true, paramLabel = "<current-init-vector>",
             description = "The current Init Vector as a Base 64 encoded string.")
     private String iv;
 
-    @Option(names = {"--new-key"}, required = true, paramLabel = "<new-key>",
+    @Option(names = {"-k2"}, required = true, paramLabel = "<new-key>",
             description = "The new Secret Key to use as a Base 64 encoded string.")
     private String newKey;
 
-    @Option(names = {"--new-iv"}, required = true, paramLabel = "<new-init-vector>",
+    @Option(names = {"-i2"}, required = true, paramLabel = "<new-init-vector>",
             description = "The new Init Vector to use as a Base 64 encoded string.")
     private String newIv;
 
-    @Option(names = {"-z", "--zebedee-root"}, required = true, paramLabel = "<dir>",
+    @Option(names = {"-z"}, required = true, paramLabel = "<dir>",
             description = "The CMS collection keyring directory")
     private String zebedeeDir;
 
@@ -80,11 +93,11 @@ public class RekeyComand implements Callable<Integer> {
      *     dir</li>
      *     <li>Removes the backup keyring dir</li>
      * </ul>
-     *
      */
     @Override
     public Integer call() throws Exception {
         Config cfg = parser.parseConfig(key, iv, newKey, newIv, zebedeeDir);
+        LOG.info("config parsed successfully");
 
         createBackup(cfg, keyFileFilter);
 
@@ -94,7 +107,9 @@ public class RekeyComand implements Callable<Integer> {
         // Remove the old dir as it's no longer needed (keep the tar.gz).
         filesHelper.deleteDir(cfg.getKeyringBackupDir());
 
-        System.out.println("Completed decrypting collection keys");
+        verifyComplete(rawKeys, cfg);
+        LOG.info("rekey completed successfully, a backup of the original keyring dir has been created here: {}",
+                cfg.getKeyringBackupTar());
         return 0;
     }
 
@@ -102,10 +117,12 @@ public class RekeyComand implements Callable<Integer> {
         // Move the current keyring dir to a backup dir.
         filesHelper.move(cfg.getKeyringDir(), cfg.getKeyringBackupDir());
 
-        // TAR up the back up dir so we can rollback the change is necessary
+        // TAR up the backup dir so we can rollback the change is necessary
+        LOG.info("creating keyring back up tar.gz: {}", cfg.getKeyringBackupTar());
         archiver.createTarGz(cfg.getKeyringBackupDir(), cfg.getKeyringBackupTar(), filter);
 
         // Create a new empty keyring dir to write the re-encrypted keys to.
+        LOG.info("creating new (empty) keyring dir: {}", cfg.getKeyringDir());
         filesHelper.createDir(cfg.getKeyringDir());
     }
 
@@ -123,5 +140,17 @@ public class RekeyComand implements Callable<Integer> {
         int code = new CommandLine(cmd).execute(args);
 
         System.exit(code);
+    }
+
+    private void verifyComplete(List<CollectionKey> expected, Config cfg) throws RekeyException {
+        List<String> missing = expected.stream()
+                .filter(key -> !filesHelper.exists(key.getKeyPath(cfg.getKeyringDir())))
+                .map(key -> key.getKeyFileName())
+                .collect(Collectors.toList());
+
+        if (missing != null && missing.size() > 0) {
+            throw new RekeyException(format(VERIFICATION_ERR_FMT, joinWith(",", missing), cfg.getKeyringBackupTar(),
+                    cfg.getKeyringBackupDir()));
+        }
     }
 }
