@@ -1,0 +1,6 @@
+FROM openjdk:11
+
+WORKDIR /dp-zebedee-collection-key-cli-java/src
+
+ADD classes target/classes
+ADD dependency target/dependency

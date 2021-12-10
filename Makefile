@@ -25,13 +25,13 @@ audit:
 
 .PHONY: build
 build:
-		mvn clean package
+	mvn clean package -Dmaven.test.skip -Dossindex.skip=true
 
 .PHONY: rekey
 rekey:
-	java -jar target/dp-zebedee-collection-key-cli-java-1.0-SNAPSHOT-jar-with-dependencies.jar \
-	--key=${CURRENT_KEY} \
-	--iv=${CURRENT_IV} \
- 	--new-key=${NEW_KEY} \
- 	--new-iv=${NEW_IV} \
- 	--zebedee-root=${ZEBEDEE_ROOT} \
+	java -jar target/rekey.jar \
+	-k=${CURRENT_KEY} \
+	-i=${CURRENT_IV} \
+ 	-k2=${NEW_KEY} \
+ 	-i2=${NEW_IV} \
+ 	-z=${ZEBEDEE_ROOT} \

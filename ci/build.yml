@@ -1,0 +1,17 @@
+---
+
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: onsdigital/dp-concourse-tools-java
+
+inputs:
+  - name: dp-zebedee-collection-key-cli-java
+
+outputs:
+  - name: build
+
+run:
+  path: dp-zebedee-collection-key-cli-java/ci/scripts/build.sh
