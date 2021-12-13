@@ -72,8 +72,10 @@ The `rekey` command will:
    | `-z` | The path to the Zebedee root directory - for dev/prod this will be `/content`.                         |
 
 
-8. If there are no errors `rekey` command has completed successfully and all collections keys 
-   under `$zebedee_root/keyring` should now be encrypted with the new key.
+8. If there are no errors and your output looks something like:
+   ![Alt text](img1.png?raw=true "Optional Title") Then `rekey` has completed successfully and all  collections keys 
+   under `$zebedee_root/keyring` should now be 
+   encrypted with the new key.
 
 
 9. Merge your dp-configs secrets PR.

@@ -31,7 +31,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
             encryptToFile(key.getKeyPath(dest), key.getKey(), encryptionKey, encryptionIV);
         }
 
-        LOG.info("re-encryp collection keys completed successfully, (total: {})", toEncrypt.size());
+        LOG.info("re-encrypt collection keys completed successfully, (total: {})", toEncrypt.size());
     }
 
     private void encryptToFile(Path dest, SecretKey toEncrypt, SecretKey encryptionKey, IvParameterSpec encryptionIV)
