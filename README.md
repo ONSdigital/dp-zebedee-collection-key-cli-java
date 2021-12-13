@@ -48,13 +48,15 @@ The `rekey` command will:
 
 6. Install the pre-requisite tools in the container, clone the repo and build the `rekey` jar.
     ```bash
-    $> apt-get update && apt-get install maven && apt-get install git && apt-get install make
-   
-    $> git clone https://github.com/ONSdigital/dp-zebedee-collection-key-cli-java.git
-   
-    $> cd dp-zebedee-collection-key-cli-java 
-   
-    $> make build
+    apt-get update && apt-get install maven && apt-get install git && apt-get install make
+    ```
+   Clone the repo:
+   ```bash   
+    git clone https://github.com/ONSdigital/dp-zebedee-collection-key-cli-java.git
+   ```
+   Build the cli jar: 
+   ```bash
+   cd dp-zebedee-collection-key-cli-java && make build
     ```
 
 7. Run the `rekey` command updating the placeholders with the appropriate values. An explanation of each flag is 
