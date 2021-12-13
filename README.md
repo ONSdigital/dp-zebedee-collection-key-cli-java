@@ -16,8 +16,9 @@ The `rekey` command will:
 1. Use the [collection-keyring-secrets-generator tool](1) to generate a new set of `SecretKey` and `InitVector` 
    values. This tool will output the values in the format required by `rekey`. 
 
-    :warning: These are now production secrets **please ensure they are kept safe and secure** and are not 
-   accidentally shared. :warning:
+    :warning:
+    These are now production secrets **please ensure they are kept safe and secure** and are not accidentally shared. 
+   :warning:
 
 
 2. Update the following Zebedee CMS secrets in [dp-cofigs](2) with the new values you generated in the step #1. 
