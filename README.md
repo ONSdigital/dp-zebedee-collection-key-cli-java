@@ -13,7 +13,7 @@ The `rekey` command will:
 ## Rekey instructions
 (These steps assume `rekey` is being run on the prod environment).
 
-1. Use the [collection-keyring-secrets-generator tool](1) to generate a new set of `SecretKey` and `InitVector` 
+1. Use the [collection-keyring-secrets-generator tool][1] to generate a new set of `SecretKey` and `InitVector` 
    values. This tool will output the values in the format required by `rekey`. 
 
     :warning:
@@ -21,7 +21,7 @@ The `rekey` command will:
    :warning:
 
 
-2. Update the following Zebedee CMS secrets in [dp-cofigs](2) with the new values you generated in the step #1. 
+2. Update the following Zebedee CMS secrets in [dp-configs][2] with the new values you generated in the step #1. 
    **Keep a copy of the original key/iv values as these will be required later**.
 
     ```
@@ -107,7 +107,7 @@ Before decrypting/re-encrypting the `rekey` command will create a backup of the 
    mv keyring-backup-<timestamp> keyring
    ````
  
-3. Revert the [dp-configs](1) Zebedee CMS secrets (if required) and wait until the secrets pipeline has compeleted.
+3. Revert the [dp-configs][1] Zebedee CMS secrets (if required) and wait until the secrets pipeline has compeleted.
 
 
 4. Restart Zebedee and check that the correct secrets have been picked up.
