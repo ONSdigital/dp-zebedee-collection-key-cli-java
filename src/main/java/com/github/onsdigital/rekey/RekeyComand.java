@@ -35,6 +35,9 @@ import static org.apache.commons.lang3.StringUtils.joinWith;
 public class RekeyComand implements Callable<Integer> {
 
     private static Logger LOG = LogManager.getLogger(RekeyComand.class);
+    private static final String ROCKET = "\uD83D\uDE80";
+    private static final String TADA = "\uD83C\uDF89";
+    private static final String LOCK = "\uD83D\uDD12";
 
     static final String VERIFICATION_ERR_FMT = "rekey verification error, expected collection keys " +
             "were missing: {0} " +
@@ -108,8 +111,9 @@ public class RekeyComand implements Callable<Integer> {
         filesHelper.deleteDir(cfg.getKeyringBackupDir());
 
         verifyComplete(rawKeys, cfg);
-        LOG.info("rekey completed successfully, a backup of the original keyring dir has been created here: {}",
-                cfg.getKeyringBackupTar());
+
+        LOG.info("{} rekey completed successfully {} {}", LOCK, ROCKET, TADA);
+        LOG.info("a backup of the original keyring dir has been created here: {}", cfg.getKeyringBackupTar());
         return 0;
     }
 

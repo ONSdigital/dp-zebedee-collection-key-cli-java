@@ -26,12 +26,12 @@ public class KeyEncryptorImpl implements KeyEncryptor {
                               IvParameterSpec encryptionIV)
             throws RekeyException {
 
-        LOG.info("encrypting collection keys with new secret key");
+        LOG.info("encrypting collection keys with new secret key, (count: {})", toEncrypt.size());
         for (CollectionKey key : toEncrypt) {
             encryptToFile(key.getKeyPath(dest), key.getKey(), encryptionKey, encryptionIV);
         }
 
-        LOG.info("re-encryp collection keys completed successfully, total: {}", toEncrypt.size());
+        LOG.info("re-encryp collection keys completed successfully, (total: {})", toEncrypt.size());
     }
 
     private void encryptToFile(Path dest, SecretKey toEncrypt, SecretKey encryptionKey, IvParameterSpec encryptionIV)

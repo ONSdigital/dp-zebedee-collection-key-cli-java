@@ -51,14 +51,14 @@ public class KeyDecryptorImpl implements KeyDecryptor {
         List<CollectionKey> results = new ArrayList<>();
 
         List<Path> keyFiles = filesHelper.listFiles(keyringDir, keyFileFilter);
-        LOG.info("decrypting existing collection keys (total: {})", keyFiles.size());
+        LOG.info("decrypting existing collection keys (count: {})", keyFiles.size());
 
         for (Path p : keyFiles) {
             SecretKey k = decryptKey(p, key, iv);
             results.add(new CollectionKey(k, removeExtension(p.getFileName().toString())));
         }
 
-        LOG.info("successfully decrypted existing collection keys (count: {})", results.size());
+        LOG.info("successfully decrypted existing collection keys (total: {})", results.size());
         return results;
     }
 
