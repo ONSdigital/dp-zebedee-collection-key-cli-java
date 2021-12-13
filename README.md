@@ -41,12 +41,12 @@ The `rekey` command will:
 
 5. Create/start a new Java docker container with a volume mapped to the `zebedee_root` dir:
    ```bash
-    sudo docker run -i -t --name rekey -v /var/florence/zebedee/:/content openjdk:11 /bin/bash
+    sudo docker run -i -t --name rekey --userns=host -v /var/florence/zebedee/:/content openjdk:11 /bin/bash
     ```
    **Note:** For local or other environments replace `/var/florence/zebedee/` with the appropriate zebedee root path.
 
 
-6. Install the pre-requisite tools in the container, clone the repo and build the `rekey` jar.
+6. Install the pre-requisite tools in the container.
     ```bash
     apt-get update && apt-get install maven && apt-get install git && apt-get install make
     ```
