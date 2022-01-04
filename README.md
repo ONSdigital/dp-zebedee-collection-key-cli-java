@@ -4,7 +4,7 @@ or compremised **immediate action** is required minimise the risk
 and window of opportunity for malicious parties. The `dp-zebedee-collection-keyring-cli-java` cli `rekey` command 
 automates the process of swapping the keyring encryption key with minimal fuss. 
 
-The `rekey` command will:
+The `rekey` command will :
 - Create a `tar.gz` back up of the current `zebedee/keyring` dir in case a rollback is required.
 - Decrypt each key file using the **current** secret key.
 - Re-encrypt each collection key with the **new secret key** and write the output back to the `/zebedee/keyring` dir.
