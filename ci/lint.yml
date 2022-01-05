@@ -9,8 +9,5 @@ image_resource:
 inputs:
   - name: dp-zebedee-collection-key-cli-java
 
-outputs:
-  - name: build
-
 run:
-  path: dp-zebedee-collection-key-cli-java/ci/scripts/build.sh
+  path: dp-zebedee-collection-key-cli-java/ci/scripts/lint.sh

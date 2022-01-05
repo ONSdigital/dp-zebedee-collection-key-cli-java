@@ -13,7 +13,7 @@ NEW_IV=<new_init_vector_as_base64_encoded_string>
 ZEBEDEE_ROOT=<path_to_zebedee_root_dir>
 
 .PHONY: all
-all: build test audit rekey
+all: build test audit lint rekey
 
 .PHONY: test
 test:
@@ -26,6 +26,10 @@ audit:
 .PHONY: build
 build:
 	mvn clean package -Dmaven.test.skip -Dossindex.skip=true
+
+.PHONY: lint
+lint:
+	exit
 
 .PHONY: rekey
 rekey:
